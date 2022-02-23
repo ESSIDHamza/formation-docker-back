@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  db:
+    image: formation-docker-db:${VERSION_DB}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PWD}
+    container_name: formation_docker_db
+    networks:
+      - formation_docker_net
+    volumes:
+      - formation_docker_volume:/var/lib/mysql
+    restart: always
+
+  back:
+    container_name: formation_docker_back
+    ports:
+      - 8080:8080
+    networks:
+      - formation_docker_net
+    image: formation-docker-back:${VERSION_BACK}
+    depends_on:
+      - db
+    restart: always
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PWD: ${DB_PWD}
+      # CHEMIN_FICHIER: /home/formation-docker.txt
+
+  front:
+    container_name: formation_docker_front
+    ports:
+      - 80:80
+    image: formation-docker-front:${VERSION_FRONT}
+    restart: always
+
+networks:
+  formation_docker_net:
+    driver: bridge
+    name: formation-docker-net
+
+volumes:
+  formation_docker_volume:
+    driver: local
+    name: formation-docker-volume
